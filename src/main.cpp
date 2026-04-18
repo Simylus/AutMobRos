@@ -22,19 +22,21 @@ int main(int argc, char **argv)
 
     log.info() << "Starting template project...";
 
-    // log.info() << "Initializing hardware...";
-    // eeros::hal::HAL& hal = eeros::hal::HAL::instance();
-    // hal.readConfigFromFile(&argc, argv);
+    log.info() << "Initializing hardware...";
+    eeros::hal::HAL& hal = eeros::hal::HAL::instance();
+    hal.readConfigFromFile(&argc, argv);
 
-    log.info() << "Hello EEROS!";
+    log.info() << "Hello Sim!";
 
     log.info() << "Initializing control system...";
-    ControlSystem cs(dt);
+    ControlSystem cs(0.1);
 
     log.info() << "Initializing safety system...";
     MyRobotSafetyProperties sp(cs, dt);
     eeros::safety::SafetySystem ss(sp, dt);
-    cs.timedomain.registerSafetyEvent(ss, sp.doSystemOff); // fired if timedomain fails to run properly
+    cs.timedomain.registerSafetyEvent(ss, sp.abort); // fired if timedomain fails to run properly
+    cs.signalChecker.registerSafetyEvent(ss, sp.emergency);
+    cs.signalChecker.setActiveLevel(sp.slSystemOn);
     signal(SIGINT, signalHandler);
 
     log.info() << "Initializing sequencer...";
