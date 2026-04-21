@@ -22,7 +22,10 @@ public:
 
     PeripheralInput<> q1;
     Gain<> g;
-    SignalChecker<> signalChecker;
+    Constant<> motVolt1;
+    Constant<> motVolt2;
+    PeripheralOutput<> mot1;
+    PeripheralOutput<> mot2;
 
     TimeDomain timedomain;
 };

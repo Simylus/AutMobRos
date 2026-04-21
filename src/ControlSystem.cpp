@@ -1,33 +1,35 @@
 #include "ControlSystem.hpp"
 
 ControlSystem::ControlSystem(double dt)
-    : q1("quat1"), g(2.0), signalChecker(-0.2, 0.2), //myConstant(1.0), myGain(4.0),
+    : q1("quat1"), g(2.0), motVolt1(0.0), motVolt2(0.0), mot1("motor1"), mot2("motor2"),
       timedomain("Main time domain", dt, true)
 {
     // Name all blocks
-    //myConstant.setName("My constant");
-    //myGain.setName("My gain");
     q1.setName("q1");
     g.setName("g");
-    signalChecker.setName("signalChecker");
+    motVolt1.setName("motorVoltage1");
+    motVolt2.setName("motorVoltage2");
+    mot1.setName("mot1");
+    mot2.setName("mot2");
 
     // Name all signals
-    //myConstant.getOut().getSignal().setName("My constant value");
-    //myGain.getOut().getSignal().setName("My constant value multiplied with my gain");
     q1.getOut().getSignal().setName("alpha/2");
     g.getOut().getSignal().setName("alpha");
+    motVolt1.getOut().getSignal().setName("Motor voltage1 setpoint [V]");
+    motVolt2.getOut().getSignal().setName("Motor voltage2 setpoint [V]");
 
     // Connect signals
-    //myGain.getIn().connect(myConstant.getOut());
     g.getIn().connect(q1.getOut());
-    signalChecker.getIn().connect(g.getOut());
+    mot1.getIn().connect(motVolt1.getOut());
+    mot2.getIn().connect(motVolt1.getOut());
 
     // Add blocks to timedomain
-    //timedomain.addBlock(myConstant);
-    //timedomain.addBlock(myGain);
     timedomain.addBlock(q1);
     timedomain.addBlock(g);
-    timedomain.addBlock(signalChecker);
+    timedomain.addBlock(motVolt1);
+    timedomain.addBlock(motVolt2);
+    timedomain.addBlock(mot1);
+    timedomain.addBlock(mot2);
 
     // Add timedomain to executor
     eeros::Executor::instance().add(timedomain);

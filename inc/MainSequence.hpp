@@ -7,6 +7,7 @@
 #include "MyRobotSafetyProperties.hpp"
 #include "ControlSystem.hpp"
 #include <eeros/sequencer/Wait.hpp>
+#include <customSteps/setVoltage.hpp>
 
 class MainSequence : public eeros::sequencer::Sequence
 {
@@ -19,7 +20,9 @@ public:
           sp(sp),
           cs(cs),
 
-          sleep("Sleep", this)
+          sleep("Sleep", this),
+          setVoltage("motVolt", this, cs)
+
     {
         log.info() << "Sequence created: " << name;
     }
@@ -28,8 +31,12 @@ public:
     {
         while (eeros::sequencer::Sequencer::running)
         {
-            sleep(1.0);
-            log.info() << cs.myGain.getOut().getSignal();
+            //sleep(1.0);
+            //log.info() << cs.myGain.getOut().getSignal();
+            setVoltage(0.7);
+            sleep(3.0);
+            setVoltage(-0.7);
+            sleep(3.0);
         }
         return 0;
     }
@@ -40,6 +47,7 @@ private:
     MyRobotSafetyProperties &sp;
 
     eeros::sequencer::Wait sleep;
+    SetVoltage setVoltage;
 };
 
 #endif // MAINSEQUENCE_HPP_
