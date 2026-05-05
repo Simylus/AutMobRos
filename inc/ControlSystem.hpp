@@ -17,11 +17,21 @@ public:
     ControlSystem(double dt);
 
     // Define Blocks
+    /*
     PeripheralInput<> E2;
     Gain<> quadB;
     Saturation<> Sat1;
     Gain<> ratio;
     Gain<> motorConst;
+    PeripheralOutput<> M1;
+    */
+
+    PeripheralInput<> E2;
+    Gain<> cont;
+    Saturation<> QMax;
+    Gain<> iInv;
+    Gain<> kMInv;
+    Gain<> R;
     PeripheralOutput<> M1;
     
 

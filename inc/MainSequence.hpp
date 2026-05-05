@@ -30,7 +30,8 @@ public:
         {
             sleep(1.0);
             log.info() << cs.E2.getOut().getSignal();
-            log.info() << cs.quadB.getOut().getSignal();
+            //log.info() << cs.quadB.getOut().getSignal();
+            log.info() << cs.QMax.getOut().getSignal();
         }
         return 0;
     }
