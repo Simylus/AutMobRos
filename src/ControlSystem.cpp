@@ -2,6 +2,7 @@
 
 ControlSystem::ControlSystem(double dt)
     : E1("enc1"), E2("enc2"), fwKinOdom(0.15),
+      RvRx(1.0), omegaR(0.0), invKin(0.15),
       timedomain("Main time domain", dt, true)
 {
     // Name all blocks
@@ -10,6 +11,7 @@ ControlSystem::ControlSystem(double dt)
     E.setName("E");
     Ed.setName("Ed");
     fwKinOdom.setName("fwKinOdom");
+    invKin.setName("invKin");
 
     // Name all signals
     E1.getOut().getSignal().setName("q1 [m]");
@@ -22,6 +24,8 @@ ControlSystem::ControlSystem(double dt)
     E.getIn(1).connect(E2.getOut());
     Ed.getIn().connect(E.getOut());
     fwKinOdom.getIn().connect(Ed.getOut());
+    invKin.getInRvRx().connect(RvRx.getOut());
+    invKin.getInOmegaR().connect(omegaR.getOut());
 
     // Add blocks to timedomain
     timedomain.addBlock(E1);
@@ -29,6 +33,9 @@ ControlSystem::ControlSystem(double dt)
     timedomain.addBlock(E);
     timedomain.addBlock(Ed);
     timedomain.addBlock(fwKinOdom);
+    timedomain.addBlock(RvRx);
+    timedomain.addBlock(omegaR);
+    timedomain.addBlock(invKin);
 
     // Add timedomain to executor
     eeros::Executor::instance().add(timedomain);
