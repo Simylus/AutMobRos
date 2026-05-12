@@ -26,10 +26,10 @@ public:
     // Defina all possible levels
     eeros::safety::SafetyLevel slSystemOff;
     eeros::safety::SafetyLevel slShuttingDown;
-    eeros::safety::SafetyLevel slBreaking;
+    eeros::safety::SafetyLevel slBraking;
     eeros::safety::SafetyLevel slStartingUp;
     eeros::safety::SafetyLevel slEmergency;
-    eeros::safety::SafetyLevel slEmergencyBreaking;
+    eeros::safety::SafetyLevel slEmergencyBraking;
     eeros::safety::SafetyLevel slSystemOn;
     eeros::safety::SafetyLevel slMotorPowerOn;
     eeros::safety::SafetyLevel slSystemMoving;

@@ -5,10 +5,10 @@ MyRobotSafetyProperties::MyRobotSafetyProperties(ControlSystem &cs, double dt)
     
       slSystemOff("System is offline"),
       slShuttingDown("System shutting down"),
-      slBreaking("System braking"),
+      slBraking("System braking"),
       slStartingUp("System starting up"),
       slEmergency("Emergency"),
-      slEmergencyBreaking("System halting"),
+      slEmergencyBraking("System halting"),
       slSystemOn("System is online"),
       slMotorPowerOn("Motors powered"),
       slSystemMoving("System moving"),
@@ -42,10 +42,10 @@ MyRobotSafetyProperties::MyRobotSafetyProperties(ControlSystem &cs, double dt)
         // Add all safety levels to the safety system
         addLevel(slSystemOff);
         addLevel(slShuttingDown);
-        addLevel(slBreaking);
+        addLevel(slBraking);
         addLevel(slStartingUp);
         addLevel(slEmergency);
-        addLevel(slEmergencyBreaking);
+        addLevel(slEmergencyBraking);
         addLevel(slSystemOn);
         addLevel(slMotorPowerOn);
         addLevel(slSystemMoving);
@@ -53,16 +53,16 @@ MyRobotSafetyProperties::MyRobotSafetyProperties(ControlSystem &cs, double dt)
         // Add events to individual safety levels
         slSystemOff.addEvent(doSystemOn, slStartingUp, kPublicEvent);
         slShuttingDown.addEvent(shutdown, slSystemOff, kPrivateEvent);
-        slBreaking.addEvent(motorsHalted, slShuttingDown, kPrivateEvent);
+        slBraking.addEvent(motorsHalted, slShuttingDown, kPrivateEvent);
         slStartingUp.addEvent(systemStarted, slSystemOn, kPrivateEvent);
         slEmergency.addEvent(resetEmergency, slSystemOn, kPrivateEvent);
-        slEmergencyBreaking.addEvent(motorsHalted, slEmergency, kPrivateEvent);
+        slEmergencyBraking.addEvent(motorsHalted, slEmergency, kPrivateEvent);
         slSystemOn.addEvent(powerOn, slMotorPowerOn, kPublicEvent);
         slMotorPowerOn.addEvent(startMoving, slSystemMoving, kPublicEvent);
         slMotorPowerOn.addEvent(powerOff, slSystemOn, kPublicEvent);
         slSystemMoving.addEvent(stopMoving, slMotorPowerOn, kPublicEvent);
-        slSystemMoving.addEvent(emergency, slEmergencyBreaking, kPublicEvent);
-        slSystemMoving.addEvent(abort, slBreaking, kPublicEvent);
+        slSystemMoving.addEvent(emergency, slEmergencyBraking, kPublicEvent);
+        slSystemMoving.addEvent(abort, slBraking, kPublicEvent);
 
         // Add events to multiple safety levels
         addEventToAllLevelsBetween(slEmergency, slMotorPowerOn, abort, slShuttingDown, kPublicEvent);
@@ -71,10 +71,10 @@ MyRobotSafetyProperties::MyRobotSafetyProperties(ControlSystem &cs, double dt)
         // Define input actions for all levels
         slSystemOff.setInputActions({           ignore(buttonPause),                    ignore(buttonMode) });
         slShuttingDown.setInputActions({        ignore(buttonPause),                    ignore(buttonMode) });
-        slBreaking.setInputActions({             ignore(buttonPause),                    ignore(buttonMode) });
+        slBraking.setInputActions({             ignore(buttonPause),                    ignore(buttonMode) });
         slStartingUp.setInputActions({          ignore(buttonPause),                    ignore(buttonMode) });
         slEmergency.setInputActions({           ignore(buttonPause),                    check(buttonMode, false, resetEmergency) });
-        slEmergencyBreaking.setInputActions({    ignore(buttonPause),                    ignore(buttonMode) });
+        slEmergencyBraking.setInputActions({    ignore(buttonPause),                    ignore(buttonMode) });
         slSystemOn.setInputActions({            check(buttonPause, false, emergency),   ignore(buttonMode) });
         slMotorPowerOn.setInputActions({        check(buttonPause, false, emergency),   ignore(buttonMode) });
         slSystemMoving.setInputActions({        check(buttonPause, false, emergency),   ignore(buttonMode) });
@@ -82,10 +82,10 @@ MyRobotSafetyProperties::MyRobotSafetyProperties(ControlSystem &cs, double dt)
         // Define output actions for all levels
         slSystemOff.setOutputActions({           set(greenLED, false),   set(redLED, false) });
         slShuttingDown.setOutputActions({        set(greenLED, false),   set(redLED, true) });
-        slBreaking.setOutputActions({             set(greenLED, false),   set(redLED, true) });
+        slBraking.setOutputActions({             set(greenLED, false),   set(redLED, true) });
         slStartingUp.setOutputActions({          set(greenLED, true),    set(redLED, false) });
         slEmergency.setOutputActions({           set(greenLED, true),    set(redLED, true) });
-        slEmergencyBreaking.setOutputActions({    set(greenLED, true),    set(redLED, true) });
+        slEmergencyBraking.setOutputActions({    set(greenLED, true),    set(redLED, true) });
         slSystemOn.setOutputActions({            set(greenLED, true),    set(redLED, false) });
         slMotorPowerOn.setOutputActions({        set(greenLED, true),    set(redLED, false) });
         slSystemMoving.setOutputActions({        set(greenLED, true),    set(redLED, false) });
@@ -100,44 +100,36 @@ MyRobotSafetyProperties::MyRobotSafetyProperties(ControlSystem &cs, double dt)
             privateContext->triggerEvent(shutdown);
         });
 
-        slBreaking.setLevelAction([&](SafetyContext *privateContext) {
+        slBraking.setLevelAction([&](SafetyContext *privateContext) {
             // Check if motors are standing sill
             privateContext->triggerEvent(motorsHalted);
         });
 
         slStartingUp.setLevelAction([&](SafetyContext *privateContext) {
             cs.timedomain.start();
+            cs.fwKinOdom.enable();
             privateContext->triggerEvent(systemStarted);
         });
 
         slEmergency.setLevelAction([&](SafetyContext *privateContext) {
-            
+            cs.fwKinOdom.disable();
         });
 
-        slEmergencyBreaking.setLevelAction([&](SafetyContext *privateContext) {
+        slEmergencyBraking.setLevelAction([&](SafetyContext *privateContext) {
             // Check if motors are standing still
             privateContext->triggerEvent(motorsHalted);
         });
 
         slSystemOn.setLevelAction([&, dt](SafetyContext *privateContext) {
-            if (slSystemOn.getNofActivations()*dt >= 1)   // wait 1 sec
-            {
-                privateContext->triggerEvent(powerOn);
-            }
+            cs.fwKinOdom.enable();
         });
 
         slMotorPowerOn.setLevelAction([&, dt](SafetyContext *privateContext) {
-            if (slMotorPowerOn.getNofActivations()*dt >= 5)   // wait 5 sec
-            {
-                privateContext->triggerEvent(startMoving);
-            }
+            cs.fwKinOdom.enable();
         });
 
         slSystemMoving.setLevelAction([&, dt](SafetyContext *privateContext) {
-            if (slSystemMoving.getNofActivations()*dt >= 5)   // wait 5 sec
-            {
-                privateContext->triggerEvent(stopMoving);
-            }
+            cs.fwKinOdom.enable();
         });
 
         // Define entry level
