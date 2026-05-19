@@ -126,7 +126,12 @@ protected:
     I<T> e;
 
 private:
-    void init()
+    /**
+     * @brief init method
+     *
+     * @param eLimit integrator limit
+     */
+    void init(T eLimit)
     {
         // Name all blocks
         ed.setName("controller->ed");

@@ -13,26 +13,35 @@ template <typename T = double>
 class InvMotMod : public Block   // Set the number of inputs and outputs
 {
 public:
+    /**
+     * @brief Construct a new Inv Mot Mod object
+     * 
+     * @param QMax maximum torque
+     * @param qdMax maximum velocity
+     * @param i transmission ratio
+     * @param kM motor konstant
+     * @param R motor resistance
+     */
     InvMotMod(double QMax, double qdMax, double i, double kM, double R)
-        :   QMax(QMax),
-            iInv(1.0 / i),
-            kMInv(1.0 / kM),
-            R(R),
-            qdMax(qdMax),
-            i(i),
-            kM(kM)
+        : QMax(QMax),
+          iInv(1.0 / i),
+          kMInv(1.0 / kM),
+          R(R),
+          qdMax(qdMax),
+          i(i),
+          kM(kM)
     {
-        // Connect subblocks, initialize variables, ...
+        // Name all blocks
         this->QMax.setName("QMax");
         iInv.setName("iInv");
         kMInv.setName("kMInv");
-        this->R-setName("R");
+        this->R.setName("R");
         this->qdMax.setName("qdMax");
         this->i.setName("i");
         this->kM.setName("kM");
         U.setName("U");
 
-        //Name all signals
+        // Name all signals
         this->QMax.getOut().getSignal().setName("Q [Nm]");
         iInv.getOut().getSignal().setName("T [Nm]");
         kMInv.getOut().getSignal().setName("I [A]");
@@ -52,20 +61,19 @@ public:
         U.getIn(1).connect(this->kM.getOut());
     }
 
-    // Implement getter functions for the subsystem inputs
     /**
-    * @brief Input getter function
-    * 
-    * @param index input index
-    * @return Input<T>& index 0: torque input, index 1: velocity input
-    */
+     * @brief Input getter function
+     * 
+     * @param index input index
+     * @return Input<T>& index 0: torque input, index 1: velocity input
+     */
     virtual Input<T> &getIn(uint8_t index)
     {
-        if(index == 0)
+        if (index == 0)
         {
             return QMax.getIn();
         }
-        else if(index == 1)
+        else if (index == 1)
         {
             return qdMax.getIn();
         }
@@ -76,19 +84,21 @@ public:
     }
 
     /**
-    * @brief Output getter function
-    * 
-    * @return Output<T>& motor voltage
-    */
+     * @brief Output getter function
+     * 
+     * @return Output<T>& motor voltage
+     */
     virtual Output<T> &getOut()
     {
         return U.getOut();
     }
 
+    /**
+     * @brief run method
+     * 
+     */
     virtual void run()
     {
-        // Calculate output values, set timestamps and 
-        // call the run method of the subblocks
         QMax.run();
         iInv.run();
         kMInv.run();
