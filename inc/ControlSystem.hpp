@@ -7,12 +7,12 @@
 #include <eeros/control/Mux.hpp>
 #include <eeros/control/D.hpp>
 #include "customBlocks/FwKinOdom.hpp"
+#include <eeros/control/Constant.hpp>
+#include <eeros/control/D.hpp>
+#include "customBlocks/InvKin.hpp"
 #include "customBlocks/Controller.hpp"
 #include "customBlocks/InvMotMod.hpp"
-#include "customBlocks/InvKin.hpp"
-#include <eeros/control/DeMux.hpp>
 #include <eeros/control/PeripheralOutput.hpp>
-#include <eeros/control/Constant.hpp>
 
 using namespace eeros::control;
 
@@ -28,6 +28,11 @@ public:
     FwKinOdom fwKinOdom;
     Constant<> RvRx, omegaR;
     InvKin invKin;
+    D<> E1d;
+    Gain<> g;
+    Controller<> controller;
+    InvMotMod<> invMotMod;
+    PeripheralOutput<> M1;
 
     TimeDomain timedomain;
 };

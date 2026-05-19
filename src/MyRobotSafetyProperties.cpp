@@ -3,27 +3,27 @@
 MyRobotSafetyProperties::MyRobotSafetyProperties(ControlSystem &cs, double dt)
     : cs(cs),
     
-      slSystemOff("System is offline"),
-      slShuttingDown("System shutting down"),
-      slBraking("System braking"),
-      slStartingUp("System starting up"),
-      slEmergency("Emergency"),
-      slEmergencyBraking("System halting"),
-      slSystemOn("System is online"),
-      slMotorPowerOn("Motors powered"),
-      slSystemMoving("System moving"),
+        slSystemOff("System is offline"),
+        slShuttingDown("System shutting down"),
+        slBraking("System braking"),
+        slStartingUp("System starting up"),
+        slEmergency("Emergency"),
+        slEmergencyBraking("System halting"),
+        slSystemOn("System is online"),
+        slMotorPowerOn("Motors powered"),
+        slSystemMoving("System moving"),
 
-      abort("Abort"),
-      shutdown("Shutdown"),
-      doSystemOn("Do system on"),
-      systemStarted("System started"),
-      emergency("Emergency"),
-      resetEmergency("Reset emergency"),
-      powerOn("Power on"),
-      powerOff("Power off"),
-      startMoving("Start moving"),
-      stopMoving("Stop moving"),
-      motorsHalted("Motors halted")
+        abort("Abort"),
+        shutdown("Shutdown"),
+        doSystemOn("Do system on"),
+        systemStarted("System started"),
+        emergency("Emergency"),
+        resetEmergency("Reset emergency"),
+        powerOn("Power on"),
+        powerOff("Power off"),
+        startMoving("Start moving"),
+        stopMoving("Stop moving"),
+        motorsHalted("Motors halted")
     {
         eeros::hal::HAL &hal = eeros::hal::HAL::instance();
 
@@ -108,11 +108,13 @@ MyRobotSafetyProperties::MyRobotSafetyProperties(ControlSystem &cs, double dt)
         slStartingUp.setLevelAction([&](SafetyContext *privateContext) {
             cs.timedomain.start();
             cs.fwKinOdom.enable();
+            cs.controller.enable();
             privateContext->triggerEvent(systemStarted);
         });
 
         slEmergency.setLevelAction([&](SafetyContext *privateContext) {
             cs.fwKinOdom.disable();
+            cs.controller.disable();
         });
 
         slEmergencyBraking.setLevelAction([&](SafetyContext *privateContext) {
@@ -122,14 +124,17 @@ MyRobotSafetyProperties::MyRobotSafetyProperties(ControlSystem &cs, double dt)
 
         slSystemOn.setLevelAction([&, dt](SafetyContext *privateContext) {
             cs.fwKinOdom.enable();
+            cs.controller.enable();
         });
 
         slMotorPowerOn.setLevelAction([&, dt](SafetyContext *privateContext) {
             cs.fwKinOdom.enable();
+            cs.controller.enable();
         });
 
         slSystemMoving.setLevelAction([&, dt](SafetyContext *privateContext) {
             cs.fwKinOdom.enable();
+            cs.controller.enable();
         });
 
         // Define entry level
