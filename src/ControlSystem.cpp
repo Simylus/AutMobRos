@@ -8,6 +8,9 @@ ControlSystem::ControlSystem(double dt)
       QMax(0.1),
       iInv(104.0 / 3441.0),
       kMInv(1.0 / 8.44e-3),
+      qdMax(21.2),
+      i(3441.0/104.0),
+      kM(8.44e-3),
       R(8.0), M1("motor1"),
       timedomain("Main time domain", dt, true)
 {
@@ -24,6 +27,11 @@ ControlSystem::ControlSystem(double dt)
     iInv.setName("iInv");
     kMInv.setName("kMInv");
     R.setName("R");
+    qd1.setName("qd1");
+    qdMax.setName("qdMax");
+    i.setName("i");
+    kM.setName("kM");
+    U1.setName("U1");
     M1.setName("M1");
 
     // Name all signals
@@ -38,7 +46,12 @@ ControlSystem::ControlSystem(double dt)
     QMax.getOut().getSignal().setName("Q1 [Nm]");
     iInv.getOut().getSignal().setName("T1 [Nm]");
     kMInv.getOut().getSignal().setName("I1 [A]");
-    R.getOut().getSignal().setName("U1 [V]");
+    R.getOut().getSignal().setName("UR [V]");
+    qd1.getOut().getSignal().setName("qd1 [rad/s]");
+    qdMax.getOut().getSignal().setName("qd1 [rad/s]");
+    i.getOut().getSignal().setName("om1 [rad/s]");
+    kM.getOut().getSignal().setName("Uom [V]");
+    U1.getOut().getSignal().setName("U1 [V]");
 
     // Connect signals
     e.getIn(1).connect(E1.getOut());
@@ -54,7 +67,13 @@ ControlSystem::ControlSystem(double dt)
     iInv.getIn().connect(QMax.getOut());
     kMInv.getIn().connect(iInv.getOut());
     R.getIn().connect(kMInv.getOut());
-    M1.getIn().connect(R.getOut());
+    qd1.getIn().connect(E1.getOut());
+    qdMax.getIn().connect(qd1.getOut());
+    i.getIn().connect(qdMax.getOut());
+    kM.getIn().connect(i.getOut());
+    U1.getIn(0).connect(R.getOut());
+    U1.getIn(1).connect(kM.getOut());
+    M1.getIn().connect(U1.getOut());
 
 
     // Add blocks to timedomain
@@ -70,6 +89,11 @@ ControlSystem::ControlSystem(double dt)
     timedomain.addBlock(iInv);
     timedomain.addBlock(kMInv);
     timedomain.addBlock(R);
+    timedomain.addBlock(qd1);
+    timedomain.addBlock(qdMax);
+    timedomain.addBlock(i);
+    timedomain.addBlock(kM);
+    timedomain.addBlock(U1);
     timedomain.addBlock(M1);
 
     // Add timedomain to executor
