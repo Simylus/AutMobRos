@@ -14,6 +14,13 @@ using namespace eeros::control;
 class FwKinOdom : public Block   // Set the number of inputs and outputs
 {
 public:
+    /**
+     * @brief Construct a new Fw Kin Odom object
+     * 
+     * @param B distance between the two wheels
+     * @param GrRInit Initial global robot position
+     * @param phiInit Initial global robot orientation
+     */
     FwKinOdom(double B, eeros::math::Vector2 GrRInit = 0.0, double phiInit = 0.0)
         :   B(B),
             vw(this),

@@ -10,6 +10,11 @@ using namespace eeros::control;
 class InvKin : public Block   // Set the number of inputs and outputs
 {
 public:
+    /**
+     * @brief Construct a new Inv Kin object
+     * 
+     * @param B distance between the two wheels
+     */
     InvKin(double B)
         :   B(B),
             WJR([&, B]()
@@ -33,14 +38,14 @@ public:
      * 
      * @return Input<>& Input for the robot velocity in x direction
      */
-    Input<> &getInRvRx() { return WJR.getIn(0); }
+    Input<> &getInRvRx_d() { return WJR.getIn(0); }
 
     /**
      * @brief Input getter function
      * 
      * @return Input<>& Input for the angular robot velocity
      */
-    Input<> &getInOmegaR() { return WJR.getIn(1); }
+    Input<> &getInOmegaR_d() { return WJR.getIn(1); }
 
     /**
      * @brief Ouput getter function

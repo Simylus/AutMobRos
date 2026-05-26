@@ -13,6 +13,14 @@ template <typename T = double>
 class Controller : public Block  // Set the number of inputs and outputs
 {
 public:
+/**
+     * @brief Construct a new Controller object
+     *
+     * @param om0 natural frequency
+     * @param D lehr's damping ratio
+     * @param M mass matrix
+     * @param eLimit integrator limit
+     */
     Controller(double om0, double D, double M, T eLimit)
         : qd(this),
           KP(2.0 * D * om0),
@@ -22,6 +30,15 @@ public:
         init(eLimit);
     }
 
+    /**
+     * @brief Construct a new Controller object
+     *
+     * @param fTask task frequency
+     * @param D lehr's damping ratio
+     * @param s safety factor
+     * @param M mass matrix
+     * @param eLimit integrator limit
+     */
     Controller(double fTask, double D, double s, double M, T eLimit)
         : qd(this),
           KP(fTask / s),
